@@ -1,0 +1,301 @@
+#include<iostream>
+using namespace std;
+#include<stack>
+#include<queue>
+#include<vector>
+typedef  struct tree
+{
+	char data;
+	struct tree* lchild;
+	struct tree* rchild;
+	int n;
+}tree, * Tree;
+//访问节点
+void visit(Tree binaryTree)
+{
+	if (binaryTree)
+	{
+		cout << binaryTree->data << " ";
+	}
+}
+//先序方式创建二叉树,以#表示空节点
+void CreateTree(Tree* binaryTree)
+{
+	char datatemp;
+	cin >> datatemp;
+	if (datatemp == '*')
+		*binaryTree = NULL;
+	else
+	{
+		(*binaryTree) = (tree*)malloc(sizeof(tree));
+		(*binaryTree)->data = datatemp;
+		(*binaryTree)->n = 1;
+		CreateTree(&(*binaryTree)->lchild);
+		CreateTree(&(*binaryTree)->rchild);
+	}
+}
+//先序遍历（递归算法）
+void preorder(Tree binaryTree)
+{
+	if (binaryTree == NULL)
+		return;
+	visit(binaryTree);
+	preorder(binaryTree->lchild);
+	preorder(binaryTree->rchild);
+}
+//中序遍历（递归算法）
+void inorder(Tree binaryTree)
+{
+	if (binaryTree == NULL)
+		return;
+	inorder(binaryTree->lchild);
+	visit(binaryTree);
+	inorder(binaryTree->rchild);
+}
+//后序遍历（递归算法）
+void postorder(Tree binaryTree)
+{
+	if (binaryTree == NULL)
+		return;
+	postorder(binaryTree->lchild);
+	postorder(binaryTree->rchild);
+	visit(binaryTree);
+}
+//前序遍历（非递归算法）
+void preorderno(Tree binaryTree)
+{
+	if (binaryTree == NULL)
+		return;
+	stack<tree*>prestack;//创建栈
+	Tree temp = binaryTree;
+	while (temp != NULL || !prestack.empty())
+	{
+		if (temp)
+		{
+			prestack.push(temp);
+			visit(temp);
+			temp = temp->lchild;
+		}
+		else
+		{
+			temp = prestack.top();
+			prestack.pop();
+			temp = temp->rchild;
+		}
+	}
+}
+//中序遍历（非递归算法）
+void inorderno(Tree binaryTree)
+{
+	if (binaryTree == NULL)
+		return;
+	stack<tree*>instack;
+	Tree temp = binaryTree;
+	while (temp != NULL || !instack.empty())
+	{
+		if (temp)
+		{
+			instack.push(temp);
+			temp = temp->lchild;
+		}
+		else
+		{
+			temp = instack.top();
+			visit(temp);
+			instack.pop();
+			temp = temp->rchild;
+		}
+	}
+}
+//后序遍历（非递归算法）
+void postorderno(Tree binaryTree)//后序遍历的非递归算法
+{
+	if (binaryTree == NULL) return;
+	stack<tree*>s;
+	Tree temp = binaryTree;
+	while (temp != NULL || !s.empty())
+	{
+		while (temp != NULL)
+		{
+			temp->n = 1;       // 当前节点首次被访问
+			s.push(temp);
+			temp = temp->lchild;
+		}
+		if (!s.empty())
+		{
+			temp = s.top();
+			s.pop();
+			if (temp->n == 1)   // 第一次出现在栈顶
+			{
+
+				temp->n++;
+				s.push(temp);
+				temp = temp->rchild;
+			}
+			else
+				if (temp->n == 2)//第二次输出并制空，防止陷入死循环
+				{
+					visit(temp);
+					temp = NULL;
+				}
+		}
+	}
+}
+//层次遍历
+void levelorder(Tree binaryTree)
+{
+	if (binaryTree == NULL)
+		return;
+	queue<tree*>levelqueue;
+	Tree temp = binaryTree;
+	levelqueue.push(temp);
+	while (!levelqueue.empty())
+	{
+		temp = levelqueue.front();
+		visit(temp);
+		levelqueue.pop();
+		if (temp->lchild != NULL)
+			levelqueue.push(temp->lchild);
+		if (temp->rchild != NULL)
+			levelqueue.push(temp->rchild);
+	}
+
+}
+//求二叉树的高度
+int height(Tree binaryTree)
+{
+	if (binaryTree == NULL)
+		return 0;
+	else
+	{
+		int left = height(binaryTree->lchild);
+		int right = height(binaryTree->rchild);
+		int max = left > right ? left : right;
+		return max + 1;
+	}
+}
+//求二叉树节点个数
+void degree(Tree binaryTree, int& n)
+{
+	if (binaryTree)
+	{
+		n++;
+		degree(binaryTree->lchild, n);
+		degree(binaryTree->rchild, n);
+	}
+}
+//求二叉树度为一的节点个数
+void degree1(Tree binaryTree, int& n1)
+{
+	if (binaryTree == NULL)
+		return;
+	if ((binaryTree->lchild && binaryTree->rchild == NULL) || (binaryTree->lchild == NULL && binaryTree->rchild))
+		n1++;
+	degree1(binaryTree->lchild , n1);
+	degree1(binaryTree->rchild , n1);
+}
+//求二叉树度为二的节点个数
+void degree2(Tree binaryTree, int& n2)
+{
+	if (binaryTree == NULL)
+		return;
+	if (binaryTree->lchild && binaryTree->rchild)
+		n2++;
+	degree2(binaryTree->lchild, n2);
+	degree2(binaryTree->rchild, n2);
+}
+int  main()
+{
+	Tree binaryTree = NULL;
+	while (1) {
+		cout << "请输入先序序列创建二叉树：*表示空" << endl;
+	   CreateTree(&binaryTree); cout << endl;
+	   if (binaryTree == NULL) cout << "该二叉树为空，请重新输入。" << endl;
+	   if (binaryTree) break;
+	}
+	 int a = 12;
+	
+	while (a !=0)
+	{
+		cout << '\t' << "二叉树的遍历" << endl;
+		cout << '\t' << "1.递归先序遍历二叉树" << endl;
+		cout << '\t' << "2.递归中序遍历二叉树" << endl;
+		cout << '\t' << "3.递归后序遍历二叉树" << endl;
+		cout << '\t' << "4.非递归先序遍历二叉树" << endl;
+		cout << '\t' << "5.非递归中序遍历二叉树" << endl;
+		cout << '\t' << "6.非递归后序遍历二叉树" << endl;
+		cout << '\t' << "7.层次遍历二叉树" << endl;
+		cout << '\t' << "8.求此二叉树的高度" << endl;
+		cout << '\t' << "9.求此二叉树的节点个数" << endl;
+		cout << '\t' << "10.求此二叉树度为一的节点个数" << endl;
+		cout << '\t' << "11.求此二叉树度为二的节点个数" << endl;
+		cout << '\t' << "0.退出系统"<<endl;
+		cin >> a; getchar();
+		switch (a)
+		{
+		case 1: {
+			cout << "递归先序遍历此二叉树：" << endl;
+			preorder(binaryTree);
+			cout << endl; break;
+		}
+		case 2: {
+			cout << "递归中序遍历此二叉树：" << endl;
+			inorder(binaryTree); cout << endl; break;
+		}
+		case 3: {
+			cout << "递归后序遍历此二叉树：" << endl;
+			postorder(binaryTree); cout << endl; break;
+		}
+		case 4: {
+			cout << "非递归先序遍历此二叉树：" << endl;
+			preorderno(binaryTree); cout << endl; break;
+		}
+		case 5: {
+			cout << "非递归中序遍历此二叉树：" << endl;
+			inorderno(binaryTree); cout << endl; break;
+		}
+		case 6: {
+			cout << "非递归后序遍历此二叉树：" << endl;
+			postorderno(binaryTree); cout << endl; break;
+		}
+		case 7: {
+			cout << "层次遍历此二叉树：" << endl;
+			levelorder(binaryTree); cout << endl; break;
+		}
+		case 8:
+		{
+			cout << "此二叉树的高度为：" << endl;
+			int n; n = 0;
+			n = height(binaryTree);
+			cout << n << endl; break;
+		}
+		case 9:
+		{
+			cout << "此二叉树的节点个数为：" << endl;
+			int n1; n1 = 0;
+			degree(binaryTree, n1);
+			cout << n1<<endl; break;
+		}
+		case 10:
+		{
+			cout << "此二叉树度为一的节点个数为：" << endl;
+			int n2; n2 = 0;
+			degree1(binaryTree, n2);
+			cout <<n2<< endl; break;
+		}
+		case 11:
+		{
+			cout << "此二叉树度为二的节点个数为：" << endl;
+			int n3; n3 = 0;
+			degree2(binaryTree, n3);
+			cout <<n3<< endl; break;
+		}
+		case 0: return 0; break;
+		default:  cout << "输入错误,没有该功能" << endl;
+			system("pause");  //暂停
+			system("cls");    //清屏
+			break;
+		}
+	}
+	return 0;
+}
